@@ -33,12 +33,12 @@ export const PayrollRequestContainer = () => {
     if (validateAmountResult !== "") {
       return false;
     }
-    if(amount > balance) {
+    if (amount > balance) {
       setAmountError("Current balance is not enough for targe amount");
       return false;
     }
     return true;
-  }
+  };
 
   const isValidPhoneNumber = () => {
     const validatePhoneResult = validatePhone(phone);
@@ -47,11 +47,11 @@ export const PayrollRequestContainer = () => {
       return false;
     }
     return true;
-  }
+  };
 
   const isFormDataValid = () => {
     return isValidPhoneNumber() && isValidAmount();
-  }
+  };
 
   const handlePayOnClick = (event) => {
     if (!isFormDataValid()) {
@@ -60,7 +60,7 @@ export const PayrollRequestContainer = () => {
     dispatch(submitPay({ phone, amount }));
     dispatch(retrieveReceivingAccount({ phone }))
       .unwrap()
-      .then(res => {
+      .then((res) => {
         const hasNotAccount = res.return_code !== 1 && res.sub_return_code === -101;
         if (hasNotAccount) {
           setPhoneError("Phone number has not wallet account");
@@ -68,7 +68,7 @@ export const PayrollRequestContainer = () => {
         }
         navigate(`/confirm`, { replace: true });
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
       });
   };
@@ -76,13 +76,13 @@ export const PayrollRequestContainer = () => {
   useEffect(() => {
     dispatch(retrieveBalance())
       .unwrap()
-      .then(res => {
+      .then((res) => {
         setBalance(res.data.balance);
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
       });
-  }, []);
+  }, [dispatch]);
 
   return (
     <main>
@@ -106,16 +106,8 @@ export const PayrollRequestContainer = () => {
             <div className="payment-form-field">
               <p className="payment-info-item-left"> Phone No.</p>
               <div className="payment-info-item-right">
-                <input
-                  type="tel"
-                  className="phone"
-                  placeholder="Enter phone number"
-                  value={phone}
-                  onChange={handlePhoneOnChange}
-                />
-                {phoneError &&
-                  <p className="error-message">{phoneError}</p>
-                }
+                <input type="tel" className="phone" placeholder="Enter phone number" value={phone} onChange={handlePhoneOnChange} />
+                {phoneError && <p className="error-message">{phoneError}</p>}
               </div>
             </div>
             <div className="payment-form-field">
@@ -131,9 +123,7 @@ export const PayrollRequestContainer = () => {
                   />
                   <span>VNĐ</span>
                 </div>
-                {amountError &&
-                  <p className="error-message">{amountError}</p>
-                }
+                {amountError && <p className="error-message">{amountError}</p>}
               </div>
             </div>
           </div>
@@ -144,6 +134,6 @@ export const PayrollRequestContainer = () => {
           </button>
         </div>
       </section>
-    </main >
+    </main>
   );
-}
+};

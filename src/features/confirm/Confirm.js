@@ -2,19 +2,19 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { topup, queryPaymentStatus } from "../../app/paymentSlice";
-import { uuid } from "uuidv4";
+import { v4 as uuidv4 } from "uuid";
 import { formatVND } from "../../app/util/helpers";
 
 export const ConfirmContainer = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const receivingAccount = useSelector(state => state.payment.receivingAccount);
+  const receivingAccount = useSelector((state) => state.payment.receivingAccount);
   const { phone, name, mUid } = receivingAccount;
-  const paymentFormData = useSelector(state => state.payment.paymentRequest);
+  const paymentFormData = useSelector((state) => state.payment.paymentRequest);
   const amount = parseInt(paymentFormData.amount);
 
-  const partnerOrderId = uuid().toString();
+  const partnerOrderId = uuidv4();
 
   // query payment status
   let queryPaymentStatusTry = 0;
@@ -22,7 +22,7 @@ export const ConfirmContainer = () => {
 
   const buildTopupRequest = () => {
     const description = `Payment salary for ${name}`;
-    const partnerEmbedData = "{\"store_id\":\"s2\",\"store_name\":\"name\"}";
+    const partnerEmbedData = '{"store_id":"s2","store_name":"name"}';
     const extraInfo = "{}";
 
     return {
@@ -37,21 +37,21 @@ export const ConfirmContainer = () => {
 
   const isSucessful = (res) => {
     return res.return_code === 1 && res.data?.status === 1;
-  }
+  };
 
   const isProcessing = (res) => {
     return res.return_code === 1 && res.data?.status === 3;
-  }
+  };
 
   const clearAndNavigate = (url) => {
     clearInterval(queryPaymentStatusInterval);
     navigate(url, { replace: true });
-  }
+  };
 
   const handleConfirm = (event) => {
     dispatch(topup(buildTopupRequest()))
       .unwrap()
-      .then(res => {
+      .then((res) => {
         if (isSucessful(res)) {
           navigate(`/status/success?reason=${name}`, { replace: true });
           return;
@@ -63,7 +63,7 @@ export const ConfirmContainer = () => {
         const errorMessage = res.sub_return_message || res.return_message;
         navigate(`/status/error?reason=${errorMessage}`, { replace: true });
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
       });
   };
@@ -71,7 +71,7 @@ export const ConfirmContainer = () => {
   const handleQueryPaymentStatus = async () => {
     dispatch(queryPaymentStatus({ partner_order_id: partnerOrderId }))
       .unwrap()
-      .then(res => {
+      .then((res) => {
         if (isSucessful(res)) {
           clearAndNavigate(`/status/success?reason=${name}`);
           return;
@@ -81,10 +81,12 @@ export const ConfirmContainer = () => {
           return;
         }
         // Payment status query limit reached doesn't mean the transfer request has failed
-        const errorMessage = isProcessing(res) ? 'Payment status query has been attempted more than 3 times' : res.sub_return_message || res.return_message;
+        const errorMessage = isProcessing(res)
+          ? "Payment status query has been attempted more than 3 times"
+          : res.sub_return_message || res.return_message;
         clearAndNavigate(`/status/error?reason=${errorMessage}`);
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
       });
   };
@@ -115,4 +117,4 @@ export const ConfirmContainer = () => {
       </section>
     </main>
   );
-}
+};
